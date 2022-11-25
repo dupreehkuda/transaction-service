@@ -1,27 +1,43 @@
 package worker
 
 import (
-	i "github.com/dupreehkuda/transaction-service/internal/interfaces"
+	"time"
+
 	"go.uber.org/zap"
+
+	i "github.com/dupreehkuda/transaction-service/internal"
+	intf "github.com/dupreehkuda/transaction-service/internal/interfaces"
 )
 
 type Worker struct {
-	fKeeper i.FKeeper
-	logic   i.Processors
-	storage i.Stored
-	logger  *zap.Logger
+	fKeeper    intf.FKeeper
+	processor  intf.Processors
+	storage    intf.Stored
+	logger     *zap.Logger
+	aggregator chan i.Job
 }
 
 func (w Worker) Run() {
-
+	for {
+		select {
+		case msg := <-w.aggregator:
+			w.logger.Debug("Reading agg: ", zap.Any("msg", msg))
+			w.ProcessRequest(msg)
+		default:
+			time.Sleep(1 * time.Second)
+			go w.processor.GetQueues()
+			w.logger.Debug("waiting...")
+		}
+	}
 }
 
 // New creates new instance of Worker
-func New(fKeeper i.FKeeper, logic i.Processors, storage i.Stored, logger *zap.Logger) *Worker {
+func New(fKeeper intf.FKeeper, processor intf.Processors, storage intf.Stored, logger *zap.Logger) *Worker {
 	return &Worker{
-		fKeeper: fKeeper,
-		logic:   logic,
-		storage: storage,
-		logger:  logger,
+		fKeeper:    fKeeper,
+		processor:  processor,
+		storage:    storage,
+		logger:     logger,
+		aggregator: processor.SyncCollector(),
 	}
 }

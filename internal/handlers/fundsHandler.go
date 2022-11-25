@@ -2,8 +2,9 @@ package handlers
 
 import (
 	"encoding/json"
-	"go.uber.org/zap"
 	"net/http"
+
+	"go.uber.org/zap"
 )
 
 // FundsHandler gets request and passes it in the queue

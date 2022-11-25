@@ -1,9 +1,10 @@
 package handlers
 
 import (
-	i "github.com/dupreehkuda/transaction-service/internal/interfaces"
 	"github.com/shopspring/decimal"
 	"go.uber.org/zap"
+
+	i "github.com/dupreehkuda/transaction-service/internal/interfaces"
 )
 
 type handlers struct {

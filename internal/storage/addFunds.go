@@ -8,6 +8,7 @@ import (
 	"go.uber.org/zap"
 )
 
+// AddFunds inserts user or update existing with amount of funds
 func (s storage) AddFunds(accountID string, funds decimal.Decimal) error {
 	ctx := context.Background()
 	conn, err := s.pool.Acquire(ctx)
@@ -18,7 +19,7 @@ func (s storage) AddFunds(accountID string, funds decimal.Decimal) error {
 	defer conn.Release()
 	pgxdecimal.Register(conn.Conn().TypeMap())
 
-	_, err = conn.Exec(ctx, `insert into accounts (account_id, amount) values ($1, $2) on conflict (account_id)
+	_, err = conn.Query(ctx, `insert into accounts (account_id, amount) values ($1, $2) on conflict (account_id)
 	do update set amount = accounts.amount + $2 where accounts.account_id = $1;`, accountID, funds)
 	if err != nil {
 		s.logger.Error("Error when executing addition statement", zap.Error(err))

@@ -2,11 +2,13 @@ package storage
 
 import (
 	"context"
+
 	pgxdecimal "github.com/jackc/pgx-shopspring-decimal"
 	"github.com/shopspring/decimal"
 	"go.uber.org/zap"
 )
 
+// CheckBalance checks if there is enough funds on account for withdrawal
 func (s storage) CheckBalance(account string, want decimal.Decimal) bool {
 	ctx := context.Background()
 	conn, err := s.pool.Acquire(ctx)

@@ -3,6 +3,14 @@ package api
 import (
 	"context"
 	"errors"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
+	"go.uber.org/zap"
+
 	"github.com/dupreehkuda/transaction-service/internal/config"
 	"github.com/dupreehkuda/transaction-service/internal/fileKeeper"
 	"github.com/dupreehkuda/transaction-service/internal/handlers"
@@ -11,12 +19,6 @@ import (
 	"github.com/dupreehkuda/transaction-service/internal/processors"
 	"github.com/dupreehkuda/transaction-service/internal/storage"
 	"github.com/dupreehkuda/transaction-service/internal/worker"
-	"go.uber.org/zap"
-	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
 )
 
 type api struct {
@@ -39,7 +41,7 @@ func NewByConfig() *api {
 	handle := handlers.New(proc, log)
 
 	wrkr := worker.New(fkeep, proc, store, log)
-	wrkr.Run()
+	go wrkr.Run()
 
 	return &api{
 		handlers: handle,

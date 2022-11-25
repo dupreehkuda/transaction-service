@@ -1,8 +1,11 @@
 package interfaces
 
 import (
-	"github.com/shopspring/decimal"
 	"net/http"
+
+	"github.com/shopspring/decimal"
+
+	i "github.com/dupreehkuda/transaction-service/internal"
 )
 
 type Handlers interface {
@@ -17,9 +20,11 @@ type Stored interface {
 
 type Processors interface {
 	WriteToQueue(account, operation string, funds decimal.Decimal) error
+	GetQueues()
+	SyncCollector() chan i.Job
 }
 
 type FKeeper interface {
-	WriteNewRequest()
-	UpdateRequest()
+	WriteNewRequest() error
+	UpdateRequest() error
 }

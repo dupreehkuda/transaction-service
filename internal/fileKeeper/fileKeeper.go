@@ -9,14 +9,14 @@ type fileKeeper struct {
 	logger   *zap.Logger
 }
 
-func (f fileKeeper) WriteNewRequest() {
+func (f fileKeeper) WriteNewRequest() error {
 	//TODO implement me
-	panic("implement me")
+	return nil
 }
 
-func (f fileKeeper) UpdateRequest() {
+func (f fileKeeper) UpdateRequest() error {
 	//TODO implement me
-	panic("implement me")
+	return nil
 }
 
 // New creates new instance of fileKeeper

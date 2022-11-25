@@ -2,11 +2,13 @@ package storage
 
 import (
 	"context"
+
 	pgxdecimal "github.com/jackc/pgx-shopspring-decimal"
 	"github.com/shopspring/decimal"
 	"go.uber.org/zap"
 )
 
+// WithdrawBalance withdraws accounts balance
 func (s storage) WithdrawBalance(account string, withdraw decimal.Decimal) error {
 	ctx := context.Background()
 	conn, err := s.pool.Acquire(ctx)

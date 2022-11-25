@@ -15,8 +15,8 @@ type storage struct {
 
 var schema = `
 CREATE TABLE IF NOT EXISTS accounts (
-  account_id text PRIMARY KEY,
-  amount numeric
+  account_id text UNIQUE PRIMARY KEY,
+  amount numeric default 0
 );`
 
 // New creates a new instance of database layer and migrates it
