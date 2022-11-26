@@ -25,7 +25,7 @@ type api struct {
 	handlers     i.Handlers
 	logger       *zap.Logger
 	config       *config.Config
-	cancelWorker context.CancelFunc
+	cancelWorker context.Context
 }
 
 func NewByConfig() *api {
@@ -50,7 +50,7 @@ func NewByConfig() *api {
 		handlers:     handle,
 		logger:       log,
 		config:       cfg,
-		cancelWorker: wrkr.Cancel,
+		cancelWorker: wrkr.Ctx,
 	}
 }
 
@@ -75,7 +75,7 @@ func (a api) Run() {
 			}
 		}()
 
-		a.cancelWorker()
+		a.cancelWorker.Done()
 
 		err := serv.Shutdown(shutdownCtx)
 		if err != nil {

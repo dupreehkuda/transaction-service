@@ -24,6 +24,9 @@ type Worker struct {
 func (w Worker) Run() {
 	for {
 		select {
+		case <-w.Ctx.Done():
+			w.logger.Info("Ctx done, closing worker...")
+			return
 		case msg := <-w.aggregator:
 			w.logger.Debug("Reading agg: ", zap.Any("msg", msg))
 			w.ProcessRequest(msg)
