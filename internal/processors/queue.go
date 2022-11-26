@@ -8,7 +8,7 @@ import (
 )
 
 func (a *actions) WriteToQueue(account, operation string, funds decimal.Decimal) error {
-	err := a.fileWriter.WriteNewRequest()
+	id, err := a.fileWriter.WriteNewRequest(account, operation, funds)
 	if err != nil {
 		a.logger.Error("Error occurred while writing in fileKeeper", zap.Error(err))
 		return err
@@ -18,7 +18,7 @@ func (a *actions) WriteToQueue(account, operation string, funds decimal.Decimal)
 	defer a.mtx.Unlock()
 
 	a.users[account] = append(a.users[account], i.Job{
-		Id:        "",
+		Id:        id,
 		Account:   account,
 		Operation: operation,
 		Amount:    funds,

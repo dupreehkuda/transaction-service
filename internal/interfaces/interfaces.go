@@ -25,6 +25,6 @@ type Processors interface {
 }
 
 type FKeeper interface {
-	WriteNewRequest() error
-	UpdateRequest() error
+	WriteNewRequest(account, operation string, funds decimal.Decimal) (string, error)
+	UpdateRequest(id string)
 }

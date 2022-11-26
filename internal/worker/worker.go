@@ -17,6 +17,7 @@ type Worker struct {
 	aggregator chan i.Job
 }
 
+// Run runs the request worker
 func (w Worker) Run() {
 	for {
 		select {
@@ -24,9 +25,9 @@ func (w Worker) Run() {
 			w.logger.Debug("Reading agg: ", zap.Any("msg", msg))
 			w.ProcessRequest(msg)
 		default:
-			time.Sleep(1 * time.Second)
+			time.Sleep(500 * time.Millisecond)
 			go w.processor.GetQueues()
-			w.logger.Debug("waiting...")
+			//w.logger.Debug("waiting...")
 		}
 	}
 }

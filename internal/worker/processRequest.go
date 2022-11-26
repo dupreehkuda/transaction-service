@@ -6,6 +6,7 @@ import (
 	i "github.com/dupreehkuda/transaction-service/internal"
 )
 
+// ProcessRequest is a request processor that handles all requests
 func (w Worker) ProcessRequest(job i.Job) {
 	if job.Operation == "add" {
 		err := w.storage.AddFunds(job.Account, job.Amount)
@@ -13,11 +14,15 @@ func (w Worker) ProcessRequest(job i.Job) {
 			w.logger.Error("Unprocessed job", zap.Error(err), zap.Any("job", job))
 			return
 		}
+
+		go w.fKeeper.UpdateRequest(job.Id)
+		return
 	}
 
 	enough := w.storage.CheckBalance(job.Account, job.Amount)
 	if !enough {
 		w.logger.Info("Not enough funds", zap.Any("job", job))
+		go w.fKeeper.UpdateRequest(job.Id)
 		return
 	}
 
@@ -27,11 +32,7 @@ func (w Worker) ProcessRequest(job i.Job) {
 		return
 	}
 
-	err = w.fKeeper.UpdateRequest()
-	if err != nil {
-		w.logger.Error("Failed to update fKeeper", zap.Error(err), zap.Any("job", job))
-		return
-	}
+	go w.fKeeper.UpdateRequest(job.Id)
 
 	return
 }
