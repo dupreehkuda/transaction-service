@@ -43,6 +43,8 @@ func NewByConfig() *api {
 	wrkr := worker.New(fkeep, proc, store, log)
 	go wrkr.Run()
 
+	proc.ReadUnprocessedOnLaunch()
+
 	return &api{
 		handlers: handle,
 		logger:   log,

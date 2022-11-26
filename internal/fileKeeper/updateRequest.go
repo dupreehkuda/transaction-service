@@ -13,6 +13,11 @@ func (f *fileKeeper) UpdateRequest(id string) {
 	defer f.mtx.Unlock()
 
 	content, err := os.ReadFile(f.filePath)
+	if err != nil {
+		f.logger.Error("Error reading file", zap.Error(err))
+		return
+	}
+
 	requests := strings.Split(string(content), "\n")
 
 	for i, val := range requests {

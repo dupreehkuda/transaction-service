@@ -1,23 +1,30 @@
 package processors
 
 import (
+	"time"
+
 	"github.com/shopspring/decimal"
 	"go.uber.org/zap"
 
 	i "github.com/dupreehkuda/transaction-service/internal"
 )
 
-func (a *actions) WriteToQueue(account, operation string, funds decimal.Decimal) error {
-	id, err := a.fileWriter.WriteNewRequest(account, operation, funds)
-	if err != nil {
-		a.logger.Error("Error occurred while writing in fileKeeper", zap.Error(err))
-		return err
+// WriteToQueue writes request to user personal queue with existing id or new id
+func (p *processor) WriteToQueue(id, account, operation string, funds decimal.Decimal) error {
+	if id == "" {
+		id = OperationHash(account, operation, time.Now().Format(time.RFC3339))
+
+		err := p.fileKeeper.WriteNewRequest(id, account, operation, funds)
+		if err != nil {
+			p.logger.Error("Error occurred while writing in fileKeeper", zap.Error(err))
+			return err
+		}
 	}
 
-	a.mtx.Lock()
-	defer a.mtx.Unlock()
+	p.mtx.Lock()
+	defer p.mtx.Unlock()
 
-	a.users[account] = append(a.users[account], i.Job{
+	p.users[account] = append(p.users[account], i.Job{
 		Id:        id,
 		Account:   account,
 		Operation: operation,
@@ -27,15 +34,16 @@ func (a *actions) WriteToQueue(account, operation string, funds decimal.Decimal)
 	return nil
 }
 
-func (a *actions) GetQueues() {
-	a.mtx.Lock()
-	defer a.mtx.Unlock()
+// GetQueues collects requests from users queues and sends them to collector channel
+func (p *processor) GetQueues() {
+	p.mtx.Lock()
+	defer p.mtx.Unlock()
 
-	for key := range a.users {
-		for _, val := range a.users[key] {
-			a.collector <- val
+	for key := range p.users {
+		for _, val := range p.users[key] {
+			p.collector <- val
 		}
 
-		delete(a.users, key)
+		delete(p.users, key)
 	}
 }

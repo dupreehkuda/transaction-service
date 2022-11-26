@@ -24,12 +24,12 @@ func (h handlers) FundsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if data.Operation == "add" && data.Operation == "withdraw" {
+	if data.Operation != "add" && data.Operation != "withdraw" {
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		return
 	}
 
-	err = h.processor.WriteToQueue(data.Account, data.Operation, data.Amount)
+	err = h.processor.WriteToQueue("", data.Account, data.Operation, data.Amount)
 	if err != nil {
 		h.logger.Error("Error when writing to queue", zap.Error(err))
 		w.WriteHeader(http.StatusInternalServerError)

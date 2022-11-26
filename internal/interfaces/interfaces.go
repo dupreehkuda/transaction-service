@@ -19,12 +19,13 @@ type Stored interface {
 }
 
 type Processors interface {
-	WriteToQueue(account, operation string, funds decimal.Decimal) error
+	WriteToQueue(id, account, operation string, funds decimal.Decimal) error
 	GetQueues()
 	SyncCollector() chan i.Job
 }
 
 type FKeeper interface {
-	WriteNewRequest(account, operation string, funds decimal.Decimal) (string, error)
+	WriteNewRequest(id, account, operation string, funds decimal.Decimal) error
 	UpdateRequest(id string)
+	GetUnprocessed() []i.Job
 }

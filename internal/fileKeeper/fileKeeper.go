@@ -1,9 +1,7 @@
 package fileKeeper
 
 import (
-	"crypto/sha1"
-	"encoding/hex"
-	"fmt"
+	"os"
 	"sync"
 
 	"go.uber.org/zap"
@@ -17,17 +15,15 @@ type fileKeeper struct {
 
 // New creates new instance of fileKeeper
 func New(filePath string, logger *zap.Logger) *fileKeeper {
+	file, err := os.OpenFile(filePath, os.O_CREATE|os.O_RDWR, 0644)
+	if err != nil {
+		logger.Error("Error opening file", zap.Error(err))
+	}
+	file.Close()
+
 	return &fileKeeper{
 		filePath: filePath,
 		mtx:      sync.Mutex{},
 		logger:   logger,
 	}
-}
-
-// OperationHash returns short hash string
-func OperationHash(account, operation, date string) string {
-	coupled := fmt.Sprintf("%s%s%s", account, operation, date)
-	hsha := sha1.Sum([]byte(coupled))
-
-	return hex.EncodeToString(hsha[:5])
 }
