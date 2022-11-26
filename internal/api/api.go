@@ -22,9 +22,10 @@ import (
 )
 
 type api struct {
-	handlers i.Handlers
-	logger   *zap.Logger
-	config   *config.Config
+	handlers     i.Handlers
+	logger       *zap.Logger
+	config       *config.Config
+	cancelWorker context.CancelFunc
 }
 
 func NewByConfig() *api {
@@ -46,9 +47,10 @@ func NewByConfig() *api {
 	proc.ReadUnprocessedOnLaunch()
 
 	return &api{
-		handlers: handle,
-		logger:   log,
-		config:   cfg,
+		handlers:     handle,
+		logger:       log,
+		config:       cfg,
+		cancelWorker: wrkr.Cancel,
 	}
 }
 
@@ -72,6 +74,8 @@ func (a api) Run() {
 				a.logger.Fatal("graceful shutdown timed out.. forcing exit.")
 			}
 		}()
+
+		a.cancelWorker()
 
 		err := serv.Shutdown(shutdownCtx)
 		if err != nil {

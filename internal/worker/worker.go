@@ -1,6 +1,7 @@
 package worker
 
 import (
+	"context"
 	"time"
 
 	"go.uber.org/zap"
@@ -15,6 +16,8 @@ type Worker struct {
 	storage    intf.Stored
 	logger     *zap.Logger
 	aggregator chan i.Job
+	Ctx        context.Context
+	Cancel     context.CancelFunc
 }
 
 // Run runs the request worker
@@ -34,11 +37,15 @@ func (w Worker) Run() {
 
 // New creates new instance of Worker
 func New(fKeeper intf.FKeeper, processor intf.Processors, storage intf.Stored, logger *zap.Logger) *Worker {
+	ctx, cancel := context.WithCancel(context.Background())
+
 	return &Worker{
 		fKeeper:    fKeeper,
 		processor:  processor,
 		storage:    storage,
 		logger:     logger,
 		aggregator: processor.SyncCollector(),
+		Ctx:        ctx,
+		Cancel:     cancel,
 	}
 }
